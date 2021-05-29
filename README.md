@@ -1,6 +1,12 @@
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 # Reed-Sloane Algorithm
 keywords: LFSR, Berlekamp-Massey, linear recurrence
 
-Given an sequence $$
-Berlekamp-Massey Algorithm;
+[Reed-Sloane Algorithm](https://en.wikipedia.org/wiki/Reeds%E2%80%93Sloane_algorithm) is an extension to the Berlekamp-Massey algorithm which applies when the terms of the sequences are integers modulo some given modulus m.
+The implementation is almost based on [this paper](http://neilsloane.com/doc/Me111.pdf).
+The complexity is O(Ω(m)n^2), where Ω(m) is the total number of prime factors of m.
+There are some details in this implementation:
+1. We don't have to calculate b(x). Instead, we maintain L(a(x), b(x)), since the exact value of b(x) doesn't matter when we calculating the x^k term of (S * a(x) - b(x)).
+2. When calculating (S * a(x) - b(x)), we can take less modulo operations, see code for more details.
+
+You can solve this problem by using Reed-Sloane Algorithm, but must be careful that modulo operations may overflow in such constraints.
+[Find Linear Reccurence](https://www.spoj.com/problems/FINDLR/)
