@@ -34,13 +34,13 @@ void show(vector<int> seq, int mod, size_t n) {
     assert(!seq.empty());
     assert(n >= seq.size());
     // show the first n terms
-    auto relation = ReedSloane(seq, mod);
+    auto rel = ReedSloane(seq, mod);
     Mint::setMod(mod);
     vector<Mint> result(n);
     for (size_t i = 0; i < seq.size(); i++) result[i] = seq[i];
     for (size_t i = seq.size(); i < n; i++) {
-        for (size_t j = 0; j < relation.size(); j++) {
-            result[i] += result[i-j-1] * relation[j];
+        for (size_t j = 0; j < rel.size(); j++) {
+            result[i] += result[i-j-1] * rel[j];
         }
     }
 
@@ -54,14 +54,14 @@ void show(vector<int> seq, int mod, size_t n) {
         cout << result[i] << (i+1==n ? "" : ", ");
     cout << "]\n";
     cout << "\033[1;32m";
-    if (relation.empty()) {
+    if (rel.empty()) {
         cout << "a[n] = 0 for big enough n\n";
     } else {
         cout << "deduced linear relation: ";
         cout << "a[n] = ";
         bool first = true;
-        for (size_t i = 0; i < relation.size(); i++) {
-            int r = relation[i];
+        for (size_t i = 0; i < rel.size(); i++) {
+            int r = rel[i];
             if (r == 0) continue;
             if (r <= mod / 2) {
                 cout << (first ? "" : "+ ") << r << ' ';
@@ -70,7 +70,6 @@ void show(vector<int> seq, int mod, size_t n) {
             }
             first = false;
             cout << "a[n-" << i+1 << "] ";
-            // cout << relation[i] << (i+1==relation.size() ? "" : ", ");
         }
         cout << '\n';
     }
@@ -80,9 +79,11 @@ void show(vector<int> seq, int mod, size_t n) {
 
 int deduce(vector<int> seq, int mod, int64_t n) {
     // deduce only the n-th term
-    auto relation = ReedSloane(seq, mod);
+    auto A = ReedSloane(seq, mod);
     Mint::setMod(mod);
-    return linearReccurenceKthTerm(relation, seq, n);
+    vector<Mint> rec(A.begin(), A.end());
+    vector<Mint> init(seq.begin(), seq.end());
+    return static_cast<int>(linearReccurenceKthTerm<Mint>(rec, init, n));
 }
 
 signed main() {

@@ -17,7 +17,6 @@ public:
     constexpr Modular() : v() {}
     template <typename U> Modular(const U &u) { v = (0 <= u && u < MOD ? u : (u%MOD+MOD)%MOD); }
     template <typename U> explicit operator U() const { return U(v); }
-    T operator()() const { return v; }
     Modular &operator +=(const Modular &rhs) {
         return v += rhs.v - MOD, v += (v >> width) & MOD, *this;
     }
@@ -177,7 +176,7 @@ vector<int> ReedSloane(const vector<int> &S, int mod) {
 
         auto invertible = [p, e](Mint v) -> pair<Mint,int> {
             // returns the invertible part and the prime power part.
-            int x = v();
+            int x = static_cast<int>(v);
             if (!x) return { 1, e };
             int c = 0;
             while (x % p == 0) x /= p, ++c;
@@ -190,7 +189,7 @@ vector<int> ReedSloane(const vector<int> &S, int mod) {
             // faster using modadd function.
             int64_t err = 0;
             for (int i = 0; i <= k; i++) {
-                modadd(err, static_cast<int64_t>(S[i]) * a[r].at(k-i)(), M2);
+                modadd(err, S[i] * static_cast<int64_t>(a[r].at(k-i)), M2);
             }
             return err;
         };
@@ -257,25 +256,25 @@ vector<int> ReedSloane(const vector<int> &S, int mod) {
     return A;
 }
 
-template <typename T> T linearReccurenceKthTerm(vector<T> relation, vector<T> init, int64_t k) {
+template <typename T> T linearReccurenceKthTerm(vector<T> rec, vector<T> init, int64_t k) {
     // NOTE: not tested
-    if (relation.empty())
+    if (rec.empty())
         return T(0);
     if (k < init.size())
         return init[k];
 
-    assert( init.size() >= relation.size() );
+    assert( init.size() >= rec.size() );
 
     vector<T> r{1}, e{0, 1};
-    auto mul = [&relation](const vector<T> &a, const vector<T> &b) -> vector<T> {
+    auto mul = [&rec](const vector<T> &a, const vector<T> &b) -> vector<T> {
         vector<T> c(a.size() + b.size() - 1);
         for (size_t i = 0; i < a.size(); i++)
             for (size_t j = 0; j < b.size(); j++)
                 c[i+j] += a[i] * b[j];
-        for (size_t i = c.size()-1; i >= relation.size(); i--)
-            for (size_t j = 0; j < relation.size(); j++)
-                c[i-j-1] += c[i] * relation[j];
-        c.resize(relation.size());
+        for (size_t i = c.size()-1; i >= rec.size(); i--)
+            for (size_t j = 0; j < rec.size(); j++)
+                c[i-j-1] += c[i] * rec[j];
+        c.resize(rec.size());
         return c;
     };
     while (k) {
