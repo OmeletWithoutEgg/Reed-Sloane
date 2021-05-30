@@ -11,8 +11,6 @@ using std::tuple, std::pair, std::tie;
 using std::function;
 using std::max, std::swap;
 
-const int inf = 1e9;
-
 template <typename T>
 class Modular {
 public:
@@ -61,6 +59,8 @@ private:
         return u;
     }
     static T MOD;
+    // Barret reduction
+    // https://gist.github.com/simonlindholm/51f88e9626408723cf906c6debd3814b
     struct FastMod {
         typedef unsigned long long ull;
         typedef __uint128_t L;
@@ -167,7 +167,7 @@ vector<int> ReedSloane(const vector<int> &S, int mod) {
     const int64_t M2 = static_cast<int64_t>(mod) * mod;
     auto solvePrimePower = [&S, &M2](int p, int e) -> vector<int> {
         vector<Poly<Mint>> a(e), a_new(e), a_old(e);
-        vector<int> L(e), L_new(e), L_old(e, -inf);
+        vector<int> L(e), L_new(e), L_old(e, -1);
         vector<int> r(e);
         vector<Mint> theta(e), theta_old(e);
         vector<int> u(e), u_old(e);
@@ -251,7 +251,6 @@ vector<int> ReedSloane(const vector<int> &S, int mod) {
         for (size_t i = 0; i < A.size(); i++)
             A[i] = crt(A[i], (i < a.size() ? a[i] : 0));
     }
-    std::cerr<<A.size()<<'\n';
     A.erase(A.begin());
     for (int &x: A)
         x = (x ? M - x : 0);
@@ -259,8 +258,34 @@ vector<int> ReedSloane(const vector<int> &S, int mod) {
 }
 
 template <typename T> T linearReccurenceKthTerm(vector<T> relation, vector<T> init, int64_t k) {
-    if (relation.empty()) {
+    // NOTE: not tested
+    if (relation.empty())
         return T(0);
+    if (k < init.size())
+        return init[k];
+
+    assert( init.size() >= relation.size() );
+
+    vector<T> r{1}, e{0, 1};
+    auto mul = [&relation](const vector<T> &a, const vector<T> &b) -> vector<T> {
+        vector<T> c(a.size() + b.size() - 1);
+        for (size_t i = 0; i < a.size(); i++)
+            for (size_t j = 0; j < b.size(); j++)
+                c[i+j] += a[i] * b[j];
+        for (size_t i = c.size()-1; i >= relation.size(); i--)
+            for (size_t j = 0; j < relation.size(); j++)
+                c[i-j-1] += c[i] * relation[j];
+        c.resize(relation.size());
+        return c;
+    };
+    while (k) {
+        if (k & 1)
+            r = mul(r, e);
+        e = mul(e, e);
+        k >>= 1;
     }
-    // WIP
+    T res = 0;
+    for (size_t i = 0; i < r.size() && i < init.size(); i++)
+        res += r[i] * init[i];
+    return res;
 }

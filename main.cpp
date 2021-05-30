@@ -30,21 +30,65 @@ void solve() {
     }
 }
 
-void show(vector<int> seq, int mod, int n) {
+void show(vector<int> seq, int mod, size_t n) {
+    assert(!seq.empty());
+    assert(n >= seq.size());
     // show the first n terms
-    ;
+    auto relation = ReedSloane(seq, mod);
+    Mint::setMod(mod);
+    vector<Mint> result(n);
+    for (size_t i = 0; i < seq.size(); i++) result[i] = seq[i];
+    for (size_t i = seq.size(); i < n; i++) {
+        for (size_t j = 0; j < relation.size(); j++) {
+            result[i] += result[i-j-1] * relation[j];
+        }
+    }
+
+    cout << "\033[1;32m";
+    cout << "mod = " << mod << '\n';
+    cout << "S = [";
+    for (size_t i = 0; i < seq.size(); i++)
+        cout << result[i] << (i+1==n ? "" : ", ");
+    cout << "\033[91m";
+    for (size_t i = seq.size(); i < n; i++)
+        cout << result[i] << (i+1==n ? "" : ", ");
+    cout << "]\n";
+    cout << "\033[1;32m";
+    if (relation.empty()) {
+        cout << "a[n] = 0 for big enough n\n";
+    } else {
+        cout << "deduced linear relation: ";
+        cout << "a[n] = ";
+        bool first = true;
+        for (size_t i = 0; i < relation.size(); i++) {
+            int r = relation[i];
+            if (r == 0) continue;
+            if (r <= mod / 2) {
+                cout << (first ? "" : "+ ") << r << ' ';
+            } else {
+                cout << "- " << mod-r << ' ';
+            }
+            first = false;
+            cout << "a[n-" << i+1 << "] ";
+            // cout << relation[i] << (i+1==relation.size() ? "" : ", ");
+        }
+        cout << '\n';
+    }
+    cout << "\033[0m";
+    cout << '\n';
 }
 
-int deduce(vector<int> seq, int mod, int n) {
+int deduce(vector<int> seq, int mod, int64_t n) {
     // deduce only the n-th term
-    ;
+    auto relation = ReedSloane(seq, mod);
+    Mint::setMod(mod);
+    return linearReccurenceKthTerm(relation, seq, n);
 }
 
 signed main() {
     // solve();
 
-    /* WIP
-    vector<int> mods = {998244353, 2, 77777, 14, 49, 48, 720720};
+    vector<int> mods = {2, 100, 720720, 998244353};
     for (int mod: mods) {
         show({1, 1, 1, 1}, mod, 10);
 
@@ -52,7 +96,12 @@ signed main() {
 
         show({0, 1, 0, 1, 0, 1}, mod, 10);
 
-        show({1, 3, 6 }, mod, 10);
+        show({1, 3, 6, 10, 15, 21}, mod, 10);
+
+        show({10000, 100000, 1000000, 10000000}, mod, 10);
+
+        show({0, 2, 16, 72, 256, 800}, mod, 10); // a[n] = n^2 * 2^n
+
+        show({41, 41, 43, 47, 53, 61}, mod, 10); // a[n] = n^2 - n + 41
     }
-    */
 }
