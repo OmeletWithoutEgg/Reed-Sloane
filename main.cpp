@@ -77,7 +77,7 @@ void show(vector<int> seq, int mod, size_t n) {
     cout << '\n';
 }
 
-int deduce(vector<int> seq, int mod, int64_t n) {
+int deduce(vector<int> seq, int mod, uint64_t n) {
     // deduce only the n-th term
     auto A = ReedSloane(seq, mod);
     Mint::setMod(mod);
@@ -91,6 +91,9 @@ signed main() {
 
     vector<int> mods = {2, 100, 720720, 998244353};
     for (int mod: mods) {
+        show({0, 0, 0, 0, 0, 1, 1, 2, 3, 5}, mod, 20);
+        cerr << deduce({0, 0, 0, 0, 0, 1, 1, 2, 3, 5}, mod, 15) << '\n';
+
         show({1, 1, 1, 1}, mod, 10);
 
         show({1, 2, 4, 8}, mod, 10);

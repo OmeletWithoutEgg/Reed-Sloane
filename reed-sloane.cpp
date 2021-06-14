@@ -235,6 +235,7 @@ vector<int> ReedSloane(const vector<int> &S, int mod) {
             }
         }
         vector<int> A(a_new[0].begin(), a_new[0].end());
+        A.resize(L_new[0] + 1);
         return A;
     };
 
@@ -256,7 +257,7 @@ vector<int> ReedSloane(const vector<int> &S, int mod) {
     return A;
 }
 
-template <typename T> T linearReccurenceKthTerm(vector<T> rec, vector<T> init, int64_t k) {
+template <typename T> T linearReccurenceKthTerm(vector<T> rec, vector<T> init, uint64_t k) {
     // NOTE: not tested
     if (rec.empty())
         return T(0);
